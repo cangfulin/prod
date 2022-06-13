@@ -1,0 +1,38 @@
+#!/bin/bash
+
+# 記事本位置
+log="/u01/mysql/db${table_name}.txt"
+# 日期計算宣告
+startdate=$(date -d "-12 month" +%Y%m%d)
+enddate=$(date -d"$(date -d"+7 month" +"%Y%m01") -1 day" +"%Y%m%d")
+# db 登入宣告
+user="a"
+passwd=""
+host=$1
+port=$2
+#資料庫/表/日期的名稱 
+data_name=$3
+table_name=$4
+add_datatime=$5
+
+# while 列印起始~結束字串
+while [[ $startdate -le $enddate  ]]
+do
+    ao=$(echo "PARTITION p_${startdate} VALUES LESS THAN (TO_DAYS('${startdate}'))",)
+    echo $ao >> $log
+    startdate=$(date -d "+1 day $startdate" +%Y%m%d)
+done
+
+# Sed 寫入記事本
+
+sed -i "1iALTER TABLE ${data_name}.${table_name}" ${log}
+sed -i "2iPARTITION BY RANGE (TO_DAYS(${add_datatime}))" ${log}
+sed -i '3i(' ${log}
+sed -i '$a PARTITION p_max_future_dates VALUES LESS THAN MAXVALUE );' ${log}
+
+# mysql 登入用宣告的方式
+mysql -u ${user} -p${passwd} -h ${host} -P${port} <<EOF
+source $log
+EOF
+
+rm -rf $log

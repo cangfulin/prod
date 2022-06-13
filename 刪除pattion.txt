@@ -1,0 +1,47 @@
+#!/bin/bash
+ 
+#計算1年前日期
+date=$(date -d "-12 month" +%Y%m%d)
+#db登入跟資料
+user=""
+passwd=""
+host=$1
+port=$2
+data_name=$3
+table_name=$4
+#記事本位置
+log="/u01/mysql/test${table_name}.txt"
+#搜尋資料庫語法 (找尋一年前有哪些partitions)
+select="SELECT partition_name  FROM information_schema.partitions WHERE table_name ='$table_name'and partition_name <= 'p_$date' and partition_description!='MAXVALUE';"
+#登入資料庫搜尋，然後把資料丟到記事本
+mysql -u ${user} -p${passwd} -h ${host} -P${port} <<EOF > $log
+$select
+EOF
+#用sed修改記事本資料
+sed -i '/partition_name/d' $log    #移除多於項目
+sed -i 's/$/,/' $log               #每行增加逗號
+sed -i '$s/,$/;/' $log             #最後一行把逗號替完成分號
+sed -i "1iALTER TABLE $table_name DROP PARTITION" ${log}
+#登入資料庫執行刪除語法
+mysql -u ${user} -p${passwd} -h ${host} -P${port} <<EOF
+use $data_name
+source $log
+EOF
+ 
+rm -rf $log
+
+
+###開啟暫時外網傳送tg
+
+export http_proxy="http://"
+export https_proxy="http://"
+
+TOKEN=1075872204:AAGakv-jwn9a-JI0PnI9etemLQlHMMVWmJM    #宣告參數→Telegram token
+CHAT_ID=-333878193                                      #宣告參數→Telegram 群組ID
+CMD1="https://api.telegram.org/bot$TOKEN/sendMessage"   #宣告參數→傳送Telegram文字訊息
+curl -s -X POST $CMD1 -d chat_id=$CHAT_ID -d text="已刪除 UAT $data_name.$table_name  $date 前的資料" >/dev/null 2>&1   #用curl指令傳送到Telegram
+
+
+
+export http_proxy="http://"
+export https_proxy="http://"
