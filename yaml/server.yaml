@@ -1,0 +1,82 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+ name: fish-server-<BASE_IMG_VERSION>-<DB_ENV>-depl
+spec:
+ selector:
+    matchLabels:
+          apps: fish-server-<BASE_IMG_VERSION>-<DB_ENV>
+ replicas: 1
+ strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+ minReadySeconds: 2
+ template:
+   metadata:
+         labels:
+           apps: fish-server-<BASE_IMG_VERSION>-<DB_ENV>
+   spec:
+        terminationGracePeriodSeconds: 5
+        hostAliases:
+        - ip: <DB_IP>
+          hostnames:
+          - redisxxx
+          - mongoxxx
+        containers:
+        - name: fish-server
+          image: <IMG_LATEST>
+          imagePullPolicy: Always
+          ports:
+          - name: v1
+            containerPort: 8017
+          - name: v2
+            containerPort: 8018
+          - name: v3
+            containerPort: 8019
+          - name: v4
+            containerPort: 8090
+          env:
+              - name: "TZ"
+                value: "Asia/Taipei"
+          command: ["/bin/bash","-c"]
+          args:
+          - cd /home/gameserver;
+            /home/gameserver/start.sh;
+        imagePullSecrets:
+        - name: regcred
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fish-server-<BASE_IMG_VERSION>-<DB_ENV>-svc
+  labels:
+   apps: fish-server-<BASE_IMG_VERSION>-<DB_ENV>
+spec:
+  selector:
+    apps: fish-server-<BASE_IMG_VERSION>-<DB_ENV>
+  type: NodePort
+  ports:
+   - port: 8017
+     name: http5
+     targetPort: 8017
+     <NODE_PORT_ENV>04
+   - port: 8018
+     name: http6
+     targetPort: 8018
+     <NODE_PORT_ENV>05
+   - port: 8019
+     name: http7 
+     targetPort: 8019
+     <NODE_PORT_ENV>06
+   - port: 8090
+     name: http8
+     targetPort: 8090
+     <NODE_PORT_ENV>07
+---
+
+    

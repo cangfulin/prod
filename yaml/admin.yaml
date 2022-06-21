@@ -1,0 +1,72 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+ name: fish-web-admin-<BASE_IMG_VERSION>-<DB_ENV>-depl
+spec:
+ selector:
+    matchLabels:
+          apps: fish-web-admin-<BASE_IMG_VERSION>-<DB_ENV>
+ replicas: 1
+ strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+ minReadySeconds: 2
+ template:
+   metadata:
+         labels:
+           apps: fish-web-admin-<BASE_IMG_VERSION>-<DB_ENV>
+   spec:
+        #hostAliases:
+        #- ip: <DB_IP>
+        #  hostnames:
+        #  - redisxxx
+        #- ip: <DB_IP>
+        #  hostnames:
+        #  - mongoxxx
+        containers:
+        - name: fish-web-admin
+          image: <IMG_LATEST>
+          imagePullPolicy: Always
+          ports:
+          - name: v4
+            containerPort: 80
+          - name: v5
+            containerPort: 4200
+          env:
+              - name: "TZ"
+                value: "Asia/Taipei"
+                name: "NGINX_PORT"
+                value: "80"
+          command: ["/bin/bash"]
+          args: ["-c", "echo 'hello' && exec nginx -g 'daemon off;'"]
+        imagePullSecrets:
+        - name: regcred
+        
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fish-web-admin-<BASE_IMG_VERSION>-<DB_ENV>-svc
+  labels:
+    apps: fish-web-admin-<BASE_IMG_VERSION>-<DB_ENV>
+spec:
+  selector:
+    apps: fish-web-admin-<BASE_IMG_VERSION>-<DB_ENV>
+  type: NodePort
+  ports:
+   - port: 80
+     name: http1
+     targetPort: 80
+     <NODE_PORT_ENV>00
+   - port: 4200
+     name: http2
+     targetPort: 4200
+     <NODE_PORT_ENV>08
+        
+---
+# tag:<BUILD_TAG>/<DB_IP>/<DB_ENV>/<BASE_IMG_VERSION>  
+# <NODE_PORT_ENV> nodePort:32  
+    
