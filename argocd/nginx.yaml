@@ -72,7 +72,7 @@ spec:
         ports:
         - containerPort: 80
         volumeMounts:
-           - name: nginx
+           - name: html-file
              mountPath: /usr/share/nginx/html
         volumes:  
          - name: html-file 
