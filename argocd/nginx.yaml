@@ -71,9 +71,9 @@ spec:
         image: nginx:alpine
         ports:
         - containerPort: 80
-#         volumeMounts:
-#            - name: html-file
-#              mountPath: /usr/share/nginx/html    
+         volumeMounts:
+            - name: nginx
+              mountPath: /usr/share/nginx/html    
 ---
 apiVersion: v1
 kind: Service
@@ -82,11 +82,9 @@ metadata:
 spec:
   selector:
     app: nginx
-  type: LoadBalancer
+  type: NodePort
   ports:
-    - name: http
-      port: 80
-      targetPort: http
-    - name: https
-      port: 443
-      targetPort: https
+   - name: http
+     port: 80
+     protocol: TCP
+     targetPort: 80
