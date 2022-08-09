@@ -101,6 +101,3 @@ data:
           root   /usr/share/nginx/html;
       }
     }
-Events:  <none>
-
-
