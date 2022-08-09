@@ -87,7 +87,7 @@ metadata:
 data:
   default.conf: |-
     server {
-      listen     8080;
+      listen     30080;
       listen  [::]:80;
       server_name  localhost;
 
