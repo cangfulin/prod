@@ -71,9 +71,9 @@ spec:
         image: nginx:alpine
         ports:
         - containerPort: 80
-        volumeMounts:
-           - name: html-file
-             mountPath: /usr/share/nginx/html    
+#         volumeMounts:
+#            - name: html-file
+#              mountPath: /usr/share/nginx/html    
 ---
 apiVersion: v1
 kind: Service
