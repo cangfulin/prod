@@ -35,11 +35,13 @@ metadata:
   labels:
     app: nginx
 spec:
+  type: NodePort
   ports:
   - name: http
     port: 80
     protocol: TCP
     targetPort: 80
+    NodePort: 30080
   selector:
     app: nginx
 ---
