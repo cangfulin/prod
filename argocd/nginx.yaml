@@ -82,8 +82,9 @@ metadata:
 spec:
   selector:
     app: nginx
+  type: LoadBalancer
   ports:
-     - name: http
+    - name: http
       port: 80
       targetPort: http
     - name: https
