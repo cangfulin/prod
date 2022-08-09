@@ -50,7 +50,7 @@ apiVersion: v1
 metadata:  
   name: nginx-index-v1
 data:  
-  index.html: Nginx V1
+  index.html: Kinghub-Nginx V1
 ---
 apiVersion: apps/v1
 kind: Deployment
